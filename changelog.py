@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
+from pprint import pprint
 import click
 import configparser
 from github import Github
-from pprint import pprint
 from datetime import datetime, timedelta
 import re
 
@@ -33,7 +33,7 @@ def generate_change_logs(token):
     if get_tag_date(conf['to_tag'], repo):
         to_date = get_tag_date(conf['to_tag'], repo)
     else:
-        to_date = datetime.now()
+        to_date = datetime.now() + timedelta(days=1)
 
     # Get all closed issues and PRs
     click.secho('Fetching all closed issues and PRs...', fg='cyan')
@@ -79,17 +79,18 @@ def generate_change_logs(token):
     final_prs = []
     for pr in out_prs:
         linked_pr = False
-        for issue in out_issues:
-
-            regex = r"([cC]lose.?.|[fF]ix.?.|[rR]esolve.).*" + re.escape(str(issue.number))
-            match = re.search(regex, pr.body)
-
             if match :
-                click.secho(f'Ignoring PR {pr.number}: \'{pr.title}\': closed with issue {issue.number}: \'{issue.title}\'', fg='yellow')
-                linked_pr = True
-                break
+        if pr.body:
+            for issue in out_issues:
+                regex = r"([cC]lose.?.|[fF]ix.?.|[rR]esolve.).*" + re.escape(str(issue.number))
+                match = re.search(regex, pr.body)
+                
+                if match :
+                    click.secho(f'Ignoring PR {pr.number}: \'{pr.title}\': closed with issue {issue.number}: \'{issue.title}\'', fg='yellow')
+                    linked_pr = True
+                    break
         if not linked_pr:
-            final_prs.append(pr)
+                final_prs.append(pr)
 
     final_issues = final_prs + out_issues
 
@@ -123,7 +124,15 @@ def write_issue(issue):
     if issue.pull_request:
         return f'- Pull Request: {issue.title} [\#{issue.number}]({issue.html_url}) ([{issue.user.login}]({issue.user.html_url}))\n'
     else:
-        return f'- {issue.title} [\#{issue.number}]({issue.html_url})\n'
+        issue_title = issue.title
+        issue_title = re.sub(r"((New)?\s?(Integration|Trigger|Action|Fix|Update|Added|Add|Updated|Token|Tokens|Feature)\:\s)", "", issue_title)
+        issue_title = issue_title.replace('{', '')
+        issue_title = issue_title.replace('}', '')
+        issue_title = issue_title.replace(', ticket ', ' #')
+        issue_title = issue_title.replace('- ticket ', ' #')
+        issue_title = issue_title.replace(', Ticket ', ' #')
+        issue_title = issue_title.replace('- Ticket ', ' #')
+        return f'{issue_title} [\#{issue.number}]({issue.html_url})\n'
 
 def get_labels(issue):
     '''Yields all labels of an issue.'''
@@ -131,16 +140,17 @@ def get_labels(issue):
     for label in issue.labels:
         yield label.name
 
-def get_label_names(issue):
-    list = []
-    for label in get_labels(issue):
-        list.append(label)
-
-    return list
-            
+def sort_issues(type):
+    d = []
+    for issue in type:
+        d.append(write_issue(issue))
+    
+    #d = sorted(d, key=lambda x: x.split(" ", 1)[0])
+    d = sorted(d)
+    return d
 
 def export_file(issues, from_tag, to_tag, repo_slug):
-    '''Categorizes a list of issues and outputs it into a structured 
+    '''Categorizes a list of issues and outputs it into a structured
     markdown changelog'''
 
     new_integrations = []
@@ -156,65 +166,66 @@ def export_file(issues, from_tag, to_tag, repo_slug):
     enhancements = []
     bugs = []
     other = []
-    
-    #pprint(issues)
-    
-    for issue in issues:
-        #click.secho(f'# {issue.title}', fg='green')
-        #pprint(get_labels(issue))
-        #get_label_names(issue)
-        click.secho(f'[\#{issue.number}] {issue.title}', fg='cyan')
-        #TODO: use config variables for categories
-        is_other = True
-        label = get_label_names(issue)
-        print(label)
+    internal = []
+    pull_requests = []
 
-        if 'New Integrations' in label:
-            new_integrations.append(issue)
-            is_other = False
-            break
-        elif 'New Triggers' in label:
-            new_triggers.append(issue)
-            is_other = False
-            break
-        elif 'New Actions' in label:
-            new_actions.append(issue)
-            is_other = False
-            break
-        elif 'New Conditions' in label:
-            new_conditions.append(issue)
-            is_other = False
-            break
-        elif 'New Tokens' in label:
-            new_tokens.append(issue)
-            is_other = False
-            break
-        elif 'Added' in label:
-            added.append(issue)
-            is_other = False
-            break
-        elif 'Updated' in label:
-            updated.append(issue)
-            is_other = False
-            break
-        elif 'Fixed' in label:
-            fixed.append(issue)
-            is_other = False
-            break
-        elif 'helpdesk' in label:
-            helpdesk.append(issue)
-            is_other = False
-            break
-        elif 'enhancement' in label:
-            enhancements.append(issue)
-            is_other = False
-            break
-        elif 'bug' in label:
-            bugs.append(issue)
-            is_other = False
-            break
-        if is_other:
-            other.append(issue)
+    for issue in issues:
+        #TODO: use config variables for categories
+        if issue.pull_request:
+            pull_requests.append(issue)
+        else:
+            is_other = True
+            for label in get_labels(issue):
+                if label in ['enhancement', 'New Integrations']:
+                    new_integrations.append(issue)
+                    is_other = False
+                    break
+                elif label in ['enhancement', 'New Triggers']:
+                    new_triggers.append(issue)
+                    is_other = False
+                    break
+                elif label in ['enhancement', 'New Actions']:
+                    new_actions.append(issue)
+                    is_other = False
+                    break
+                elif label in ['enhancement', 'New Conditions']:
+                    new_conditions.append(issue)
+                    is_other = False
+                    break
+                elif label in ['enhancement', 'New Tokens']:
+                    new_tokens.append(issue)
+                    is_other = False
+                    break
+                elif label in ['Added']:
+                    added.append(issue)
+                    is_other = False
+                    break
+                elif label in ['Updated']:
+                    updated.append(issue)
+                    is_other = False
+                    break
+                elif label in ['Fixed']:
+                    fixed.append(issue)
+                    is_other = False
+                    break
+                elif label in ['Help Desk', 'helpdesk']:
+                    helpdesk.append(issue)
+                    is_other = False
+                    break
+                elif label in ['enhancement']:
+                    enhancements.append(issue)
+                    is_other = False
+                    break
+                elif label in ['internal']:
+                    internal.append(issue)
+                    is_other = False
+                    break
+                elif label in ['bug', 'bug (critical)', 'correction']:
+                    bugs.append(issue)
+                    is_other = False
+                    break
+            if is_other:
+                other.append(issue)
 
     with open('PYCHANGELOG.md', 'w') as f:
         f.write(f'''# Changelog
@@ -225,54 +236,78 @@ def export_file(issues, from_tag, to_tag, repo_slug):
 ''')
         if new_integrations:
             f.write('\n**New Integrations:**\n')
+            new_integrations = sort_issues(new_integrations)
             for issue in new_integrations:
-                f.write(write_issue(issue))
+                f.write('- ' + issue)
         if new_triggers:
+            new_triggers = sort_issues(new_triggers)
             f.write('\n**New Triggers:**\n')
             for issue in new_triggers:
-                f.write(write_issue(issue))
+                f.write('- ' + issue)
         if new_actions:
+            new_actions = sort_issues(new_actions)
             f.write('\n**New Actions:**\n')
             for issue in new_actions:
-                f.write(write_issue(issue))
+                f.write('- ' + issue)
         if new_conditions:
+            new_conditions = sort_issues(new_conditions)
             f.write('\n**New Conditions::**\n')
             for issue in new_conditions:
-                f.write(write_issue(issue))
+                f.write('- ' + issue)
         if new_tokens:
+            new_tokens = sort_issues(new_tokens)
             f.write('\n**New Tokens:**\n')
             for issue in new_tokens:
-                f.write(write_issue(issue))
+                f.write('- ' + issue)
         if added:
+            added = sort_issues(added)
             f.write('\n**Added:**\n')
             for issue in added:
-                f.write(write_issue(issue))
+                f.write('- ' + issue)
         if enhancements:
+            enhancements = sort_issues(enhancements)
             f.write('\n**Enhanced:**\n')
             for issue in enhancements:
-                f.write(write_issue(issue))
+                f.write('- ' + issue)
         if features:
+            features = sort_issues(features)
             f.write('\n**New Features:**\n')
             for issue in features:
-                f.write(write_issue(issue))
+                f.write('- ' + issue)
         if updated:
+            updated = sort_issues(updated)
             f.write('\n**Updated:**\n')
             for issue in updated:
-                f.write(write_issue(issue))
+                f.write('- ' + issue)
+        if internal:
+            internal = sort_issues(internal)
+            f.write('\n**Internal:**\n')
+            for issue in internal:
+                f.write('- ' + issue)
         if fixed:
+            fixed = sort_issues(fixed)
             f.write('\n**Fixed:**\n')
             for issue in fixed:
-                f.write(write_issue(issue))
-            f.write('\n**Fixes:**\n')
+                f.write('- ' + issue)
+        if bugs:
+            bugs = sort_issues(bugs)
             for issue in bugs:
-                f.write(write_issue(issue))
+                f.write('- ' + issue)
         if helpdesk:
+            helpdesk = sort_issues(helpdesk)
             f.write('\n**Help Desk:**\n')
             for issue in helpdesk:
-                f.write(write_issue(issue))
+                f.write('- ' + issue)
+        if pull_requests:
+            pull_requests = sort_issues(pull_requests)
+            f.write('\n**Pull Requests:**\n')
+            for issue in pull_requests:
+                f.write(issue)
+
         f.write('\n**Others/Closed:**\n')
+        other = sort_issues(other)
         for issue in other:
-            f.write(write_issue(issue))
+            f.write('- ' + issue)
 
 if __name__ == '__main__':
     generate_change_logs()
