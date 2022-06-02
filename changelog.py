@@ -121,9 +121,9 @@ def get_tag_date(tag_name, repo):
 def write_issue(issue):
     '''Takes an issue or PR and returns summary as string.'''
     if issue.pull_request:
-        return f'* Pull Request: {issue.title} [\#{issue.number}]({issue.html_url}) ([{issue.user.login}]({issue.user.html_url}))\n'
+        return f'- Pull Request: {issue.title} [\#{issue.number}]({issue.html_url}) ([{issue.user.login}]({issue.user.html_url}))\n'
     else:
-        return f'* {issue.title} [\#{issue.number}]({issue.html_url})\n'
+        return f'- {issue.title} [\#{issue.number}]({issue.html_url})\n'
 
 def get_labels(issue):
     '''Yields all labels of an issue.'''
@@ -136,7 +136,6 @@ def get_label_names(issue):
     for label in get_labels(issue):
         list.append(label)
 
-    pprint(list)
     return list
             
 
@@ -164,58 +163,58 @@ def export_file(issues, from_tag, to_tag, repo_slug):
         #click.secho(f'# {issue.title}', fg='green')
         #pprint(get_labels(issue))
         #get_label_names(issue)
-        click.secho(f'{issue}', fg='cyan')
+        click.secho(f'[\#{issue.number}] {issue.title}', fg='cyan')
         #TODO: use config variables for categories
         is_other = True
         label = get_label_names(issue)
-        #pprint(label)
+        print(label)
 
-        if set(label) & set(['New Integrations']):
+        if 'New Integrations' in label:
             new_integrations.append(issue)
             is_other = False
             break
-        elif set(label) & set(['New Triggers']):
+        elif 'New Triggers' in label:
             new_triggers.append(issue)
             is_other = False
             break
-        elif set(label) & set(['New Actions']):
+        elif 'New Actions' in label:
             new_actions.append(issue)
             is_other = False
             break
-        elif set(label) & set(['New Conditions']):
+        elif 'New Conditions' in label:
             new_conditions.append(issue)
             is_other = False
             break
-        elif set(label) & set(['New Tokens']):
+        elif 'New Tokens' in label:
             new_tokens.append(issue)
             is_other = False
             break
-        elif set(label) & set(['Added']):
+        elif 'Added' in label:
             added.append(issue)
             is_other = False
             break
-        elif set(label) & set(['Updated']):
+        elif 'Updated' in label:
             updated.append(issue)
             is_other = False
             break
-        elif set(label) & set(['Fixed']):
+        elif 'Fixed' in label:
             fixed.append(issue)
             is_other = False
             break
-        elif set(label) & set(['Help Desk', 'helpdesk']):
+        elif 'helpdesk' in label:
             helpdesk.append(issue)
             is_other = False
             break
-        elif set(label) & set(['enhancement']):
+        elif 'enhancement' in label:
             enhancements.append(issue)
             is_other = False
             break
-        elif set(label) & set(['bug', 'bug (critical)', 'correction']):
+        elif 'bug' in label:
             bugs.append(issue)
             is_other = False
             break
-    if is_other:
-        other.append(issue)
+        if is_other:
+            other.append(issue)
 
     with open('PYCHANGELOG.md', 'w') as f:
         f.write(f'''# Changelog
