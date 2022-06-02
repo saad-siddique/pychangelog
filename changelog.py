@@ -120,7 +120,7 @@ def get_tag_date(tag_name, repo):
 def write_issue(issue):
     '''Takes an issue or PR and returns summary as string.'''
     if issue.pull_request:
-        return f'* {issue.title} [\#{issue.number}]({issue.html_url}) ([{issue.user.login}]({issue.user.html_url}))\n'
+        return f'* Pull Request: {issue.title} [\#{issue.number}]({issue.html_url}) ([{issue.user.login}]({issue.user.html_url}))\n'
     else:
         return f'* {issue.title} [\#{issue.number}]({issue.html_url})\n'
 
@@ -134,6 +134,15 @@ def export_file(issues, from_tag, to_tag, repo_slug):
     '''Categorizes a list of issues and outputs it into a structured 
     markdown changelog'''
 
+    new_integrations = []
+    new_triggers = []
+    new_actions = []
+    new_conditions = []
+    new_tokens = []
+    added = []
+    updated = []
+    fixed = []
+    helpdesk =[]
     features = []
     enhancements = []
     bugs = []
@@ -143,8 +152,41 @@ def export_file(issues, from_tag, to_tag, repo_slug):
         #TODO: use config variables for categories
         is_other = True
         for label in get_labels(issue):
-            if label in ['new feature', 'user story']:
-                features.append(issue)
+            click.secho(f'{label} -- {issue}', fg='cyan')
+            if label in ['enhancement', 'New Integrations']:
+                new_integrations.append(issue)
+                is_other = False
+                break
+            elif label in ['enhancement', 'New Triggers']:
+                new_triggers.append(issue)
+                is_other = False
+                break
+            elif label in ['enhancement', 'New Actions']:
+                new_actions.append(issue)
+                is_other = False
+                break
+            elif label in ['enhancement', 'New Conditions']:
+                new_conditions.append(issue)
+                is_other = False
+                break
+            elif label in ['enhancement', 'New Tokens']:
+                new_tokens.append(issue)
+                is_other = False
+                break
+            elif label in ['Added']:
+                added.append(issue)
+                is_other = False
+                break
+            elif label in ['Updated']:
+                updated.append(issue)
+                is_other = False
+                break
+            elif label in ['Fixed']:
+                fixed.append(issue)
+                is_other = False
+                break
+            elif label in ['Help Desk', 'helpdesk']:
+                helpdesk.append(issue)
                 is_other = False
                 break
             elif label in ['enhancement']:
@@ -165,19 +207,53 @@ def export_file(issues, from_tag, to_tag, repo_slug):
 
 [Full Changelog](https://github.com/{repo_slug}/compare/{from_tag}...{to_tag})
 ''')
-        if features:
-            f.write('\n**New features:**\n')
-            for issue in features:
+        if new_integrations:
+            f.write('\n**New Integrations:**\n')
+            for issue in new_integrations:
+                f.write(write_issue(issue))
+        if new_triggers:
+            f.write('\n**New Triggers:**\n')
+            for issue in new_triggers:
+                f.write(write_issue(issue))
+        if new_actions:
+            f.write('\n**New Actions:**\n')
+            for issue in new_actions:
+                f.write(write_issue(issue))
+        if new_conditions:
+            f.write('\n**New Conditions::**\n')
+            for issue in new_conditions:
+                f.write(write_issue(issue))
+        if new_tokens:
+            f.write('\n**New Tokens:**\n')
+            for issue in new_tokens:
+                f.write(write_issue(issue))
+        if added:
+            f.write('\n**Added:**\n')
+            for issue in added:
                 f.write(write_issue(issue))
         if enhancements:
-            f.write('\n**Enhancements:**\n')
+            f.write('\n**Enhanced:**\n')
             for issue in enhancements:
                 f.write(write_issue(issue))
-        if bugs:
+        if features:
+            f.write('\n**New Features:**\n')
+            for issue in features:
+                f.write(write_issue(issue))
+        if updated:
+            f.write('\n**Updated:**\n')
+            for issue in updated:
+                f.write(write_issue(issue))
+        if fixed:
+            f.write('\n**Fixed:**\n')
+            for issue in fixed:
+                f.write(write_issue(issue))
             f.write('\n**Fixes:**\n')
             for issue in bugs:
                 f.write(write_issue(issue))
-        f.write('\n**Other changes:**\n')
+        if helpdesk:
+            f.write('\n**Help Desk:**\n')
+            for issue in helpdesk:
+                f.write(write_issue(issue))
         for issue in other:
             f.write(write_issue(issue))
 
