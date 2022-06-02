@@ -3,6 +3,7 @@
 import click
 import configparser
 from github import Github
+from pprint import pprint
 from datetime import datetime, timedelta
 import re
 
@@ -130,6 +131,15 @@ def get_labels(issue):
     for label in issue.labels:
         yield label.name
 
+def get_label_names(issue):
+    list = []
+    for label in get_labels(issue):
+        list.append(label)
+
+    pprint(list)
+    return list
+            
+
 def export_file(issues, from_tag, to_tag, repo_slug):
     '''Categorizes a list of issues and outputs it into a structured 
     markdown changelog'''
@@ -147,58 +157,65 @@ def export_file(issues, from_tag, to_tag, repo_slug):
     enhancements = []
     bugs = []
     other = []
-
+    
+    #pprint(issues)
+    
     for issue in issues:
+        #click.secho(f'# {issue.title}', fg='green')
+        #pprint(get_labels(issue))
+        #get_label_names(issue)
+        click.secho(f'{issue}', fg='cyan')
         #TODO: use config variables for categories
         is_other = True
-        for label in get_labels(issue):
-            click.secho(f'{label} -- {issue}', fg='cyan')
-            if label in ['enhancement', 'New Integrations']:
-                new_integrations.append(issue)
-                is_other = False
-                break
-            elif label in ['enhancement', 'New Triggers']:
-                new_triggers.append(issue)
-                is_other = False
-                break
-            elif label in ['enhancement', 'New Actions']:
-                new_actions.append(issue)
-                is_other = False
-                break
-            elif label in ['enhancement', 'New Conditions']:
-                new_conditions.append(issue)
-                is_other = False
-                break
-            elif label in ['enhancement', 'New Tokens']:
-                new_tokens.append(issue)
-                is_other = False
-                break
-            elif label in ['Added']:
-                added.append(issue)
-                is_other = False
-                break
-            elif label in ['Updated']:
-                updated.append(issue)
-                is_other = False
-                break
-            elif label in ['Fixed']:
-                fixed.append(issue)
-                is_other = False
-                break
-            elif label in ['Help Desk', 'helpdesk']:
-                helpdesk.append(issue)
-                is_other = False
-                break
-            elif label in ['enhancement']:
-                enhancements.append(issue)
-                is_other = False
-                break
-            elif label in ['bug', 'bug (critical)', 'correction']:
-                bugs.append(issue)
-                is_other = False
-                break
-        if is_other:
-            other.append(issue)
+        label = get_label_names(issue)
+        #pprint(label)
+
+        if set(label) & set(['New Integrations']):
+            new_integrations.append(issue)
+            is_other = False
+            break
+        elif set(label) & set(['New Triggers']):
+            new_triggers.append(issue)
+            is_other = False
+            break
+        elif set(label) & set(['New Actions']):
+            new_actions.append(issue)
+            is_other = False
+            break
+        elif set(label) & set(['New Conditions']):
+            new_conditions.append(issue)
+            is_other = False
+            break
+        elif set(label) & set(['New Tokens']):
+            new_tokens.append(issue)
+            is_other = False
+            break
+        elif set(label) & set(['Added']):
+            added.append(issue)
+            is_other = False
+            break
+        elif set(label) & set(['Updated']):
+            updated.append(issue)
+            is_other = False
+            break
+        elif set(label) & set(['Fixed']):
+            fixed.append(issue)
+            is_other = False
+            break
+        elif set(label) & set(['Help Desk', 'helpdesk']):
+            helpdesk.append(issue)
+            is_other = False
+            break
+        elif set(label) & set(['enhancement']):
+            enhancements.append(issue)
+            is_other = False
+            break
+        elif set(label) & set(['bug', 'bug (critical)', 'correction']):
+            bugs.append(issue)
+            is_other = False
+            break
+    if is_other:
+        other.append(issue)
 
     with open('PYCHANGELOG.md', 'w') as f:
         f.write(f'''# Changelog
@@ -254,6 +271,7 @@ def export_file(issues, from_tag, to_tag, repo_slug):
             f.write('\n**Help Desk:**\n')
             for issue in helpdesk:
                 f.write(write_issue(issue))
+        f.write('\n**Others/Closed:**\n')
         for issue in other:
             f.write(write_issue(issue))
 
