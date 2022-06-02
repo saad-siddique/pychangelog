@@ -80,7 +80,7 @@ def generate_change_logs(token):
     for pr in out_prs:
         linked_pr = False
             if match :
-        if pr.body:
+            if pr.body:
             for issue in out_issues:
                 regex = r"([cC]lose.?.|[fF]ix.?.|[rR]esolve.).*" + re.escape(str(issue.number))
                 match = re.search(regex, pr.body)
