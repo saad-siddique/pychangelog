@@ -125,7 +125,7 @@ def write_issue(issue):
         return f'- Pull Request: {issue.title} [\#{issue.number}]({issue.html_url}) ([{issue.user.login}]({issue.user.html_url}))\n'
     else:
         issue_title = issue.title
-        issue_title = re.sub(r"((New)?\s?(Integration|Trigger|Action|Fix|Update|Added|Add|Updated|Token|Tokens|Feature)\:\s)", "", issue_title)
+        issue_title = re.sub(r"((New)?\s?((I|i)?ntegration|(T|t)rigger|(A|a)ction|(F|f)ix|(U|u)pdate(d)?|(A|a)dd(ed)?|(T|t)oken(s)?|(F|f)eature)\:\s)", "", issue_title)
         issue_title = issue_title.replace('{', '')
         issue_title = issue_title.replace('}', '')
         issue_title = issue_title.replace(', ticket ', ' #')
@@ -149,6 +149,11 @@ def sort_issues(type):
     d = sorted(d)
     return d
 
+def has_no_pr(issue):
+    list = []
+
+    return list
+
 def export_file(issues, from_tag, to_tag, repo_slug):
     '''Categorizes a list of issues and outputs it into a structured
     markdown changelog'''
@@ -168,6 +173,7 @@ def export_file(issues, from_tag, to_tag, repo_slug):
     other = []
     internal = []
     pull_requests = []
+    closed = []
 
     for issue in issues:
         #TODO: use config variables for categories
@@ -176,23 +182,23 @@ def export_file(issues, from_tag, to_tag, repo_slug):
         else:
             is_other = True
             for label in get_labels(issue):
-                if label in ['enhancement', 'New Integrations']:
+                if label in ['New Integrations']:
                     new_integrations.append(issue)
                     is_other = False
                     break
-                elif label in ['enhancement', 'New Triggers']:
+                elif label in ['New Triggers']:
                     new_triggers.append(issue)
                     is_other = False
                     break
-                elif label in ['enhancement', 'New Actions']:
+                elif label in ['New Actions']:
                     new_actions.append(issue)
                     is_other = False
                     break
-                elif label in ['enhancement', 'New Conditions']:
+                elif label in ['New Conditions']:
                     new_conditions.append(issue)
                     is_other = False
                     break
-                elif label in ['enhancement', 'New Tokens']:
+                elif label in ['New Tokens']:
                     new_tokens.append(issue)
                     is_other = False
                     break

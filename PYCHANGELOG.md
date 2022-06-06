@@ -5,7 +5,9 @@
 [Full Changelog](https://github.com/UncannyOwl/Automator/compare/v4.0.1...'')
 
 **New Integrations:**
+- Autonami [\#1977](https://github.com/UncannyOwl/Automator/issues/1977)
 - Fluent Support [\#2003](https://github.com/UncannyOwl/Automator/issues/2003)
+- Google Calendar [\#2049](https://github.com/UncannyOwl/Automator/issues/2049)
 
 **New Triggers:**
 - Amelia - A guest registers for an event [\#2028](https://github.com/UncannyOwl/Automator/issues/2028)
@@ -19,12 +21,15 @@
 - Fluent Support - A ticket is opened by a customer [\#2009](https://github.com/UncannyOwl/Automator/issues/2009)
 - Fluent Support - A ticket receives a reply from a customer [\#2011](https://github.com/UncannyOwl/Automator/issues/2011)
 - GamiPress - A user earns greater than, less than, greater than or equal to...etc. a number of a specific type of points in a single transaction [\#1929](https://github.com/UncannyOwl/Automator/issues/1929)
-- New trigger: Uncanny Toolkit Pro - A user's time in a course exceeds a specific number of minutes [\#1997](https://github.com/UncannyOwl/Automator/issues/1997)
+- Uncanny Toolkit Pro - A user's time in a course exceeds a specific number of minutes [\#1997](https://github.com/UncannyOwl/Automator/issues/1997)
 
 **New Actions:**
+-  Toolkit Pro - Reset a user's time in a course [\#1998](https://github.com/UncannyOwl/Automator/issues/1998)
 - Autonami - Add a tag to a contact [\#2013](https://github.com/UncannyOwl/Automator/issues/2013)
 - Autonami - Add a tag to the user [\#2012](https://github.com/UncannyOwl/Automator/issues/2012)
-- New action:  Toolkit Pro - Reset a user's time in a course [\#1998](https://github.com/UncannyOwl/Automator/issues/1998)
+- Google Calendar - Add an attendee to an event in a Google Calendar [\#1986](https://github.com/UncannyOwl/Automator/issues/1986)
+- Google Calendar - Add an event to a Google Calendar [\#1985](https://github.com/UncannyOwl/Automator/issues/1985)
+- Google Calendar - Remove an attendee from an event in a Google Calendar [\#1987](https://github.com/UncannyOwl/Automator/issues/1987)
 - WordPress - Add a WordPress data erasure request for a user [\#1411](https://github.com/UncannyOwl/Automator/issues/1411)
 
 **New Tokens:**
@@ -33,7 +38,12 @@
 - GiveWP - Comment and Currency [\#1646](https://github.com/UncannyOwl/Automator/issues/1646)
 
 **Added:**
+- API: Google Calendar - Set-up and finalize new API Endpoints [\#1988](https://github.com/UncannyOwl/Automator/issues/1988)
 - Filter - `automator_postmeta_token_parsed` [\#2090](https://github.com/UncannyOwl/Automator/issues/2090)
+- Google Calendar: new settings page [\#1989](https://github.com/UncannyOwl/Automator/issues/1989)
+
+**Enhanced:**
+- Update Google Sheets settings page [\#2034](https://github.com/UncannyOwl/Automator/issues/2034)
 
 **Updated:**
 - Automator API - Add a setting/filter to change timeout [\#1922](https://github.com/UncannyOwl/Automator/issues/1922)
@@ -42,11 +52,14 @@
 - Field/Select - Add property to set the visibility of the option ID [\#2086](https://github.com/UncannyOwl/Automator/issues/2086)
 - Field: Time - Format time using WordPress setting (only frontend) [\#2050](https://github.com/UncannyOwl/Automator/issues/2050)
 - Google Sheets - "Create a new row": Filter out empty drives (key/options) that are rendering for some users and causing a JS error | Added update for supporting Shared drives  #40275 [\#1943](https://github.com/UncannyOwl/Automator/issues/1943)
+- Gravity Forms - Add filters in token file to externally add non-gravity forms trigger meta [\#2023](https://github.com/UncannyOwl/Automator/issues/2023)
 - In-Plugin Notifications - Allow 1 button notifications [\#1924](https://github.com/UncannyOwl/Automator/issues/1924)
 - In-plugin notifications - Automatically add utm tags to button urls [\#1976](https://github.com/UncannyOwl/Automator/issues/1976)
 - In-plugin notifications - Hide notifications on Settings page [\#1926](https://github.com/UncannyOwl/Automator/issues/1926)
 - In-plugin notifications - Validate buttons text before displaying them [\#1927](https://github.com/UncannyOwl/Automator/issues/1927)
 - LifterLMS - Remove the user from a membership - Add "All memberships" option - 39545 [\#1848](https://github.com/UncannyOwl/Automator/issues/1848)
+- Mailchimp - Add tag to user - Should also add the user to the associated list if they're not already a member [\#832](https://github.com/UncannyOwl/Automator/issues/832)
+- Replace "Disconnect account" with "Manage license" [\#2094](https://github.com/UncannyOwl/Automator/issues/2094)
 - Slack - Now fetches channels that the members have access of [\#1999](https://github.com/UncannyOwl/Automator/issues/1999)
 - WPForms - Entry tokens parsing message updated for WPForms lite users [\#1830](https://github.com/UncannyOwl/Automator/issues/1830)
 - Webhooks - Send response body to a URL [\#2039](https://github.com/UncannyOwl/Automator/issues/2039)
@@ -57,9 +70,11 @@
 
 **Fixed:**
 - ActiveCampaign - "Add a tag to a contact" action is not working #40464 [\#1992](https://github.com/UncannyOwl/Automator/issues/1992)
+- Automator Core - "An Automator recipe completes with errors" erroneously fires with skipped actions #40513  [\#2019](https://github.com/UncannyOwl/Automator/issues/2019)
 - BuddyBoss & BuddyPress token returns incorrect date #39922 [\#1978](https://github.com/UncannyOwl/Automator/issues/1978)
 - BuddyBoss - "A user replies to a topic in a forum" tokens now reliably return data when "Any" option is selected #40310 [\#1948](https://github.com/UncannyOwl/Automator/issues/1948)
 - BuddyBoss - Date tokens in Date fields are now parsed reliably #39922 [\#1873](https://github.com/UncannyOwl/Automator/issues/1873)
+- Bug: Some sites send reports more than once a week.  [\#2017](https://github.com/UncannyOwl/Automator/issues/2017)
 - Google sheets - Google drive shared drives are not showing on the list after the fix #40500 [\#2002](https://github.com/UncannyOwl/Automator/issues/2002)
 - Instagram - Line breaks in captions now works reliably #40713 [\#2063](https://github.com/UncannyOwl/Automator/issues/2063)
 - Webhooks - "Send data to a webhook" now displays a Webhooks response if "Send test" fails [\#2062](https://github.com/UncannyOwl/Automator/issues/2062)
@@ -70,11 +85,13 @@
 - Facebook Pages - Problems with the access after connecting Facebook Groups #40622 [\#2031](https://github.com/UncannyOwl/Automator/issues/2031)
 - Facebook and Instagram - Posts are not longer posting on those platforms #40594 [\#2014](https://github.com/UncannyOwl/Automator/issues/2014)
 - Field/data - Add support for double-quotes in repeater subfields #36714 [\#1428](https://github.com/UncannyOwl/Automator/issues/1428)
+- Fix infinite loop when a tag is added in the recipe creator [\#1132](https://github.com/UncannyOwl/Automator/issues/1132)
 - Fluent Forms - The form tokens are not showing up anymore #40575 [\#2016](https://github.com/UncannyOwl/Automator/issues/2016)
 - Formidable Forms - The tokens are returning wrong information #40605 [\#2032](https://github.com/UncannyOwl/Automator/issues/2032)
 - Google Sheets - Conflict with "New User Approve" plugin #40318 [\#1974](https://github.com/UncannyOwl/Automator/issues/1974)
 - Google sheets - Conflict between WPForms, Google sheets and Automator #40500 [\#2027](https://github.com/UncannyOwl/Automator/issues/2027)
 - Instagram - The "Feature image URL" token is returning blank #40745 [\#2064](https://github.com/UncannyOwl/Automator/issues/2064)
+- Instagram: User max limit reach shows status as `completed` where it should show as `complete with error`. [\#2079](https://github.com/UncannyOwl/Automator/issues/2079)
 - Paid Memberships Pro Integration - Membership level is not removing as expected ##40052 [\#1942](https://github.com/UncannyOwl/Automator/issues/1942)
 - Question about Automator - Events ticket custom fields with Automator [\#2008](https://github.com/UncannyOwl/Automator/issues/2008)
 - Question: Amelia - way to access the appointment Location and custom fields #40695 [\#2055](https://github.com/UncannyOwl/Automator/issues/2055)
@@ -93,12 +110,13 @@
 - Pull Request: 1997 New trigger: ToolKit Pro - a user's time in {a course} exceeds {a specific number of} minutes [\#2000](https://github.com/UncannyOwl/Automator/pull/2000) ([ankituc](https://github.com/ankituc))
 - Pull Request: 1998 ⁃ New action:  Toolkit Pro - Reset a user's time in {a course} [\#2001](https://github.com/UncannyOwl/Automator/pull/2001) ([ankituc](https://github.com/ankituc))
 - Pull Request: Added filters to the API class to easily override request params [\#2060](https://github.com/UncannyOwl/Automator/pull/2060) ([ajayver](https://github.com/ajayver))
+- Pull Request: Ajay/unit testing documentation [\#2099](https://github.com/UncannyOwl/Automator/pull/2099) ([ajayver](https://github.com/ajayver))
 - Pull Request: Elementor-added-form-tokens [\#2054](https://github.com/UncannyOwl/Automator/pull/2054) ([huma-uncannyowl](https://github.com/huma-uncannyowl))
 - Pull Request: Feature/fluent support integration tweaks [\#2072](https://github.com/UncannyOwl/Automator/pull/2072) ([m4munib](https://github.com/m4munib))
 - Pull Request: Force Slack to show only channels that authorized user is added to [\#2015](https://github.com/UncannyOwl/Automator/pull/2015) ([ajayver](https://github.com/ajayver))
 - Pull Request: Revert "Elementor-added-form-tokens" [\#2070](https://github.com/UncannyOwl/Automator/pull/2070) ([saad-siddique](https://github.com/saad-siddique))
 - Pull Request: Update autonami-tokens.php [\#2069](https://github.com/UncannyOwl/Automator/pull/2069) ([ajayver](https://github.com/ajayver))
-- Pull Request: Usage reports improvements [\#2057](https://github.com/UncannyOwl/Automator/pull/2057) ([ajayver](https://github.com/ajayver))
+- Pull Request: Updated tokens file [\#1980](https://github.com/UncannyOwl/Automator/pull/1980) ([huma-uncannyowl](https://github.com/huma-uncannyowl))
 
 **Others/Closed:**
 - #1167 - Item -  Educate user about availability of delayed/scheduled actions [\#1167](https://github.com/UncannyOwl/Automator/issues/1167)
@@ -140,6 +158,7 @@
 - Field/data - [Ticket #29550] Value of empty multi-select dropdowns saved as null in WordPress <= 5.5 [\#462](https://github.com/UncannyOwl/Automator/issues/462)
 - Field/layout - Span tags showing up in dropdown on some sites [\#661](https://github.com/UncannyOwl/Automator/issues/661)
 - Field/validation - Add a way to add custom JS functions to validate fields [\#1158](https://github.com/UncannyOwl/Automator/issues/1158)
+- Fix "Get Columns" behaviour for Google Sheets integration [\#859](https://github.com/UncannyOwl/Automator/issues/859)
 - Get specific trigger meta value based on run_number [\#187](https://github.com/UncannyOwl/Automator/issues/187)
 - Google Calendar: Create new icon [\#1991](https://github.com/UncannyOwl/Automator/issues/1991)
 - Handle timeout for API call on dashboard [\#886](https://github.com/UncannyOwl/Automator/issues/886)
@@ -161,7 +180,7 @@
 - Space below title field missing on some sites [\#1051](https://github.com/UncannyOwl/Automator/issues/1051)
 - Store persistent recipe completion count [\#2037](https://github.com/UncannyOwl/Automator/issues/2037)
 - Token - "User biographical info" to common tokens [\#1931](https://github.com/UncannyOwl/Automator/issues/1931)
-- Token - Advanced token: Post taxonomy terms - 37122 [\#1507](https://github.com/UncannyOwl/Automator/issues/1507)
+- Token - AdvancedPost taxonomy terms - 37122 [\#1507](https://github.com/UncannyOwl/Automator/issues/1507)
 - Toolkit Pro - Reset a user's time in a course [\#1941](https://github.com/UncannyOwl/Automator/issues/1941)
 - UX - Focus automatically on search fields when possible [\#1945](https://github.com/UncannyOwl/Automator/issues/1945)
 - User tokens [\#125](https://github.com/UncannyOwl/Automator/issues/125)
