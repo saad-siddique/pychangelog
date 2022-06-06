@@ -47,11 +47,11 @@ def generate_change_logs(token):
                 issues.append(issue)
     click.secho(f'Found {len(issues)} changes.', fg='green')
 
-
 # Separate issues and PRs in two distinct lists. Filter issues by
 # ignored_label and PRs by base_branch
     out_issues = []
     out_prs = []
+    issue_no_prs = []
 
     with click.progressbar(issues, label=f'Separating and filtering issues and PRs...') as bar:
         for issue in bar:
@@ -60,6 +60,7 @@ def generate_change_logs(token):
                 if pr.merged and (pr.base.label == f"{conf['user']}:{merging_branch.name}"):
                     out_prs.append(issue)
             else:
+                issue_no_prs.append(issue)
                 ignore_issue = 0
                 for label in issue.labels:
                     if label.name in ignore_labels:
@@ -79,8 +80,7 @@ def generate_change_logs(token):
     final_prs = []
     for pr in out_prs:
         linked_pr = False
-            if match :
-            if pr.body:
+        if pr.body:
             for issue in out_issues:
                 regex = r"([cC]lose.?.|[fF]ix.?.|[rR]esolve.).*" + re.escape(str(issue.number))
                 match = re.search(regex, pr.body)
