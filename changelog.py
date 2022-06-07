@@ -51,16 +51,18 @@ def generate_change_logs(token):
 # ignored_label and PRs by base_branch
     out_issues = []
     out_prs = []
-    issue_no_prs = []
+    closed_issues = []
 
     with click.progressbar(issues, label=f'Separating and filtering issues and PRs...') as bar:
         for issue in bar:
             if issue.pull_request:
                 pr = repo.get_pull(issue.number)
                 if pr.merged and (pr.base.label == f"{conf['user']}:{merging_branch.name}"):
-                    out_prs.append(issue)
+                    if pr.issue_url:
+                        closed_issues.append(issue)
+                    else:
+                        out_prs.append(issue)
             else:
-                issue_no_prs.append(issue)
                 ignore_issue = 0
                 for label in issue.labels:
                     if label.name in ignore_labels:
@@ -74,6 +76,7 @@ def generate_change_logs(token):
     click.secho(f'{len(out_issues)} remaining issues.', fg='green')
     click.secho(f'{len(out_prs)} remaining pull requests.', fg='green')
 
+#    pprint(out_prs)
 # Filter pull requests that are linked to issues by looking in the PR
 # body for an issue-closing keyword and the issue number
     click.secho(f'Filtering pull requests linked to issues...', fg='cyan')
@@ -97,7 +100,7 @@ def generate_change_logs(token):
     click.secho(f'{len(final_issues)} remaining changes.', fg='green')
     click.secho(f'Structured changelog exported to `PYCHANGELOG.md`!', fg='cyan', bold=True)
 
-    export_file(final_issues, conf['from_tag'], conf['to_tag'], repo_slug)
+    export_file(final_issues, closed_issues, conf['from_tag'], conf['to_tag'], repo_slug)
 
 
 def get_all(results):
@@ -149,12 +152,7 @@ def sort_issues(type):
     d = sorted(d)
     return d
 
-def has_no_pr(issue):
-    list = []
-
-    return list
-
-def export_file(issues, from_tag, to_tag, repo_slug):
+def export_file(issues, closed_issues, from_tag, to_tag, repo_slug):
     '''Categorizes a list of issues and outputs it into a structured
     markdown changelog'''
 
@@ -177,10 +175,14 @@ def export_file(issues, from_tag, to_tag, repo_slug):
 
     for issue in issues:
         #TODO: use config variables for categories
+        #has_no_pr(issue)
         if issue.pull_request:
             pull_requests.append(issue)
         else:
             is_other = True
+#            if issue.number in issue_no_prs:
+#                closed.append(issue)
+#            else:
             for label in get_labels(issue):
                 if label in ['New Integrations']:
                     new_integrations.append(issue)
@@ -310,9 +312,14 @@ def export_file(issues, from_tag, to_tag, repo_slug):
             for issue in pull_requests:
                 f.write(issue)
 
-        f.write('\n**Others/Closed:**\n')
+        f.write('\n**Others:**\n')
         other = sort_issues(other)
         for issue in other:
+            f.write('- ' + issue)
+
+        f.write('\n**Closed:**\n')
+        closed = sort_issues(closed_issues)
+        for issue in closed:
             f.write('- ' + issue)
 
 if __name__ == '__main__':
