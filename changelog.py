@@ -14,6 +14,7 @@ config.read('config.ini')
 conf = config['conf']
 ignore_labels = conf['ignore_labels'].split(",")
 repo_slug = f"{conf['user']}/{conf['repo']}"
+has_a_linked_pr = []
 
 @click.command()
 @click.option('--token', help='Github Token.',)
@@ -51,7 +52,7 @@ def generate_change_logs(token):
 # ignored_label and PRs by base_branch
     out_issues = []
     out_prs = []
-    closed_issues = []
+    closed_prs = []
 
     with click.progressbar(issues, label=f'Separating and filtering issues and PRs...') as bar:
         for issue in bar:
@@ -59,7 +60,8 @@ def generate_change_logs(token):
                 pr = repo.get_pull(issue.number)
                 if pr.merged and (pr.base.label == f"{conf['user']}:{merging_branch.name}"):
                     if pr.issue_url:
-                        closed_issues.append(issue)
+                        closed_prs.append(issue)
+                        has_a_linked_pr.append(issue.number)
                     else:
                         out_prs.append(issue)
             else:
@@ -100,7 +102,7 @@ def generate_change_logs(token):
     click.secho(f'{len(final_issues)} remaining changes.', fg='green')
     click.secho(f'Structured changelog exported to `PYCHANGELOG.md`!', fg='cyan', bold=True)
 
-    export_file(final_issues, closed_issues, conf['from_tag'], conf['to_tag'], repo_slug)
+    export_file(final_issues, closed_prs, conf['from_tag'], conf['to_tag'], repo_slug)
 
 
 def get_all(results):
@@ -152,7 +154,12 @@ def sort_issues(type):
     d = sorted(d)
     return d
 
-def export_file(issues, closed_issues, from_tag, to_tag, repo_slug):
+def check_has_linked_pr(issue):
+    if issue.number in has_a_linked_pr:
+        return True
+    return False
+
+def export_file(issues, closed_prs, from_tag, to_tag, repo_slug):
     '''Categorizes a list of issues and outputs it into a structured
     markdown changelog'''
 
@@ -176,64 +183,59 @@ def export_file(issues, closed_issues, from_tag, to_tag, repo_slug):
     for issue in issues:
         #TODO: use config variables for categories
         #has_no_pr(issue)
-        if issue.pull_request:
-            pull_requests.append(issue)
-        else:
-            is_other = True
-#            if issue.number in issue_no_prs:
-#                closed.append(issue)
-#            else:
-            for label in get_labels(issue):
-                if label in ['New Integrations']:
-                    new_integrations.append(issue)
-                    is_other = False
-                    break
-                elif label in ['New Triggers']:
-                    new_triggers.append(issue)
-                    is_other = False
-                    break
-                elif label in ['New Actions']:
-                    new_actions.append(issue)
-                    is_other = False
-                    break
-                elif label in ['New Conditions']:
-                    new_conditions.append(issue)
-                    is_other = False
-                    break
-                elif label in ['New Tokens']:
-                    new_tokens.append(issue)
-                    is_other = False
-                    break
-                elif label in ['Added']:
-                    added.append(issue)
-                    is_other = False
-                    break
-                elif label in ['Updated']:
-                    updated.append(issue)
-                    is_other = False
-                    break
-                elif label in ['Fixed']:
-                    fixed.append(issue)
-                    is_other = False
-                    break
-                elif label in ['Help Desk', 'helpdesk']:
-                    helpdesk.append(issue)
-                    is_other = False
-                    break
-                elif label in ['enhancement']:
-                    enhancements.append(issue)
-                    is_other = False
-                    break
-                elif label in ['internal']:
-                    internal.append(issue)
-                    is_other = False
-                    break
-                elif label in ['bug', 'bug (critical)', 'correction']:
-                    bugs.append(issue)
-                    is_other = False
-                    break
-            if is_other:
-                other.append(issue)
+        is_other = True
+        #if check_has_linked_pr(issue):
+        for label in get_labels(issue):
+            if label in ['New Integrations']:
+                new_integrations.append(issue)
+                is_other = False
+                break
+            elif label in ['New Triggers']:
+                new_triggers.append(issue)
+                is_other = False
+                break
+            elif label in ['New Actions']:
+                new_actions.append(issue)
+                is_other = False
+                break
+            elif label in ['New Conditions']:
+                new_conditions.append(issue)
+                is_other = False
+                break
+            elif label in ['New Tokens']:
+                new_tokens.append(issue)
+                is_other = False
+                break
+            elif label in ['Added']:
+                added.append(issue)
+                is_other = False
+                break
+            elif label in ['Updated']:
+                updated.append(issue)
+                is_other = False
+                break
+            elif label in ['Fixed']:
+                fixed.append(issue)
+                is_other = False
+                break
+            elif label in ['Help Desk', 'helpdesk']:
+                helpdesk.append(issue)
+                is_other = False
+                break
+            elif label in ['enhancement']:
+                enhancements.append(issue)
+                is_other = False
+                break
+            elif label in ['internal']:
+                internal.append(issue)
+                is_other = False
+                break
+            elif label in ['bug', 'bug (critical)', 'correction']:
+                bugs.append(issue)
+                is_other = False
+                break
+        if is_other:
+            other.append(issue)
 
     with open('PYCHANGELOG.md', 'w') as f:
         f.write(f'''# Changelog
@@ -312,15 +314,15 @@ def export_file(issues, closed_issues, from_tag, to_tag, repo_slug):
             for issue in pull_requests:
                 f.write(issue)
 
-        f.write('\n**Others:**\n')
+        f.write('\n**Closed Issues:**\n')
         other = sort_issues(other)
         for issue in other:
             f.write('- ' + issue)
 
-        f.write('\n**Closed:**\n')
-        closed = sort_issues(closed_issues)
+        f.write('\n**Closed Pull Requests:**\n')
+        closed = sort_issues(closed_prs)
         for issue in closed:
-            f.write('- ' + issue)
+            f.write(issue)
 
 if __name__ == '__main__':
     generate_change_logs()
