@@ -81,7 +81,7 @@ def generate_change_logs(token):
         for issue in out_issues:
 
             regex = r"([cC]lose.?.|[fF]ix.?.|[rR]esolve.).*" + re.escape(str(issue.number))
-            match = re.search(regex, pr.body)
+            match = re.search(regex, str(pr.body))
 
             if match :
                 click.secho(f'Ignoring PR {pr.number}: \'{pr.title}\': closed with issue {issue.number}: \'{issue.title}\'', fg='yellow')
@@ -114,13 +114,18 @@ def get_tag_date(tag_name, repo):
     for tag in get_all(repo.get_tags()):
         if tag.name == tag_name:
             return tag.commit.commit.committer.date
-        else:
-            return None
 
 def write_issue(issue):
     '''Takes an issue or PR and returns summary as string.'''
     if issue.pull_request:
-        return f'* {issue.title} [\#{issue.number}]({issue.html_url}) ([{issue.user.login}]({issue.user.html_url}))\n'
+        return f'* {issue.title} [\#{issue.number}]({issue.html_url}) (by @{issue.user.login})\n'
+
+    elif issue.assignees:
+        assignees = ""
+        for assignee in issue.assignees:
+            assignees += "@"+assignee.login+", "
+        return f'* {issue.title} [\#{issue.number}]({issue.html_url}) (by {assignees.rstrip(", ")})\n'
+
     else:
         return f'* {issue.title} [\#{issue.number}]({issue.html_url})\n'
 
